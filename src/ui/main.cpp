@@ -6,6 +6,9 @@
 
 #include <Message.hpp>
 
+#include <client.hpp>
+#include <core/Package.pb.h>
+
 using namespace ftxui;
 
 Component TabMenu(std::vector<std::string>* menu, int* selected)
@@ -28,6 +31,24 @@ Component TabMenu(std::vector<std::string>* menu, int* selected)
     return Menu(menu, selected, option);
 }
 
+void listener(
+        TCPClient& client,
+        std::vector<core::Package>& messages,
+        ftxui::Component& message_container,
+        ScreenInteractive& screen)
+{
+    core::Package msg;
+    std::string buf;
+
+    while (client.ServerIsRunning()) {
+        client.ReadMessage(buf);
+        msg.ParseFromString(buf);
+        messages.push_back(msg);
+        message_container->Add(SendMessage::toComponent(msg.sender(), msg.content()) | focus);
+        screen.PostEvent(Event::Special("new_message"));
+    }
+}
+
 int main()
 {
     std::cout << "\e[H\e[J";
@@ -36,20 +57,6 @@ int main()
     std::vector<std::string> menu_items = {" Chat ", " Online users ", " Options "};
     std::string user_message;
     InputOption style_2 = InputOption::Default();
-    auto text_area = Input(&user_message, "Type message for your friends...", style_2);
-
-    // MESSAGES
-    std::vector<std::string> lines;
-    // for (size_t i = 0; i < 50; i++) {
-    //     lines.push_back("message " + std::to_string(i));
-    // }
-    auto message_container = Container::Vertical({});
-    // for (int i = 0; i < 50; ++i) {
-    //     message_container->Add(SendMessage::toComponent("sender", lines[i], Color::Green1));
-    // }
-    int i = 0;
-    auto message_renderer = Renderer(message_container, [&] { return message_container->Render(); });
-    // END MESSAGES
 
     // USERS_ONLINE
     std::vector<std::string> users_online;
@@ -88,27 +95,42 @@ int main()
     });
     // END OPTION
 
+    // MESSAGES
+    std::vector<core::Package> messages;
+    auto message_container = Container::Vertical({});
+    auto message_renderer = Renderer(message_container, [&] { return message_container->Render(); });
+    // END MESSAGES
+    TCPClient client(0, 6969);
+    core::Package msg;
+    std::string buf;
+
+    std::thread listener_th(
+            listener, std::ref(client), std::ref(messages), std::ref(message_container), std::ref(screen));
+    auto text_area = Input(&user_message, "Type message for your friends...", style_2);
+    text_area |= CatchEvent([&](Event event) {
+        if (event == event.Return) {
+            if (user_message.size() == 0)
+                return false;
+            if (client.ServerIsRunning()) {
+                msg.set_sender("ui");
+                msg.set_content(user_message.c_str());
+                msg.SerializeToString(&buf);
+                client.SendMessage(buf);
+                message_container->Add(SendMessage::toComponent("ui", user_message));
+                user_message.clear();
+            }
+            return true;
+        }
+        return event.is_character() && user_message.size() >= 500;
+    });
+
     // CHAT
-    std::string large_message
-            = "Это я - твой единственный друг. Я на протяжении многих лет создавал иллюзию того, что у тебя "
-              "есть друзья, но это был я. Сейчас напишу это сообщение со всех аккаунтов.Сейчас напишу это. "
-              "Текст Текст Текст Текст Текст Текст Текст Текст Текст Текст Текст Текст Текст Текст Текст "
-              "Текст Текст Текст Текст Текст Текст Текст Текст Текст Текст Текст Текст Текст Текст Текст "
-              "Текст Текст Текст Текст Текст Текст Текст Текст Текст Текст Текст Текст Текст Текст Текст "
-              "Текст Текст Текст ";
-    int k = 0;
     bool is_need_focused = true;
     size_t prev_msg_cnt_size = 0;
     Box box;
 
     auto chat_container = Container::Vertical({message_container, text_area});
     auto chat_renderer = Renderer(chat_container, [&] {
-        if (i % 5 == 0 & k < 7) {
-            lines.push_back(large_message);
-            message_container->Add(
-                    SendMessage::toComponent("sender" + std::to_string(k++), lines[k], Color::Green));
-        }
-        i++;
         size_t elem_cnt = message_container->ChildCount();
         size_t max_len = Terminal::Size().dimy - 10;
 
@@ -143,7 +165,7 @@ int main()
                          hbox({
                                  menu->Render(),
                                  filler(),
-                                 text("server: 0.0.0.0:0 ") | align_right,
+                                 text("server: 127.0.0.1:6969 ") | align_right,
                          }),
                          tab_content->Render() | flex,
                  }) | border});

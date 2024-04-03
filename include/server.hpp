@@ -12,6 +12,8 @@
 #include <functional>
 #include <set>
 
+#include <core/Package.pb.h>
+
 void print_in(int sock)
 {
     struct sockaddr_in peeraddr;
@@ -50,6 +52,8 @@ private:
     char buf[1024];
     int bytes_read;
 
+    core::Package msg;
+
 public:
     AsioTCPServer(int port)
     {
@@ -82,9 +86,9 @@ public:
 
     void SendToAll(const char* buf, size_t len, int from_fd)
     {
+        printf("Send message from %d to all\n", from_fd);
         for (auto client = clients.begin(); client != clients.end();) {
             if (from_fd != *client) {
-                printf("\"send\" from %d to %d\n", from_fd, *client);
                 send(*client, buf, len, 0);
             }
             client++;
@@ -100,9 +104,10 @@ public:
             close(client);
             return -1;
         }
+        msg.ParseFromArray(buf, sizeof(buf));
 
         print_addr(client);
-        printf("%.*s\n", bytes_read, buf);
+        std::cout << msg.sender() << ' ' << msg.content() << '\n';
         SendToAll(buf, bytes_read, client);
 
         return 0;
@@ -151,5 +156,13 @@ public:
                 client++;
             }
         }
+    }
+
+    ~AsioTCPServer()
+    {
+        for (auto&& i : clients) {
+            close(i);
+        }
+        close(listener);
     }
 };

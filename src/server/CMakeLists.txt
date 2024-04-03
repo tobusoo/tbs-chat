@@ -8,4 +8,10 @@ target_sources(
     server.cpp
 )
 
+target_link_libraries(
+    ${target_name}
+    core
+)
+
+include_directories(${CMAKE_SOURCE_DIR}/src)
 include_directories(${CMAKE_SOURCE_DIR}/include)
