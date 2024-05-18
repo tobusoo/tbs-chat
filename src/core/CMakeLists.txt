@@ -1,11 +1,11 @@
 set(target_name core)
 
-add_library(${target_name}
-  Package.pb.cc
+file(GLOB CORE_SRC
+     "*.cpp"
 )
 
-target_link_libraries(
-  ${target_name}
-  PUBLIC
-  protobuf
+add_library(${target_name}
+  ${CORE_SRC}
 )
+
+include_directories(${CMAKE_SOURCE_DIR}/include/core)

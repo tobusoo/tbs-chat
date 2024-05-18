@@ -1,29 +1,18 @@
 #pragma once
 
-#include <functional> // for function
-#include <utility>    // for move
-
-#include "ftxui/component/captured_mouse.hpp"    // for CapturedMouse
-#include "ftxui/component/component.hpp"         // for Make, Checkbox
-#include "ftxui/component/component_base.hpp"    // for Component, ComponentBase
-#include "ftxui/component/component_options.hpp" // for CheckboxOption, EntryState
-#include "ftxui/component/event.hpp"             // for Event, Event::Return
-#include "ftxui/component/mouse.hpp"             // for Mouse, Mouse::Left, Mouse::Pressed
-#include "ftxui/dom/elements.hpp"                // for operator|, Element, reflect, focus, nothing, select
-#include "ftxui/screen/box.hpp"                  // for Box
-#include "ftxui/util/ref.hpp"                    // for Ref, ConstStringRef
+#include "ftxui/component/component.hpp"
+#include "ftxui/component/component_base.hpp"
+#include "ftxui/component/component_options.hpp"
+#include "ftxui/component/event.hpp"
+#include "ftxui/dom/elements.hpp"
+#include "ftxui/screen/box.hpp"
 #include <string>
 
 namespace ftxui {
 
-enum MessageType { MessageT };
-
 class Message {
 private:
-    std::string message_;
-    Color color_;
-
-    static ftxui::CheckboxOption myOpt()
+    static ftxui::CheckboxOption SendMessageOption()
     {
         auto option = ftxui::CheckboxOption();
         option.transform = [](const ftxui::EntryState& s) {
@@ -40,7 +29,7 @@ private:
         return option;
     }
 
-    static ftxui::CheckboxOption myOptv2()
+    static ftxui::CheckboxOption MessageOption()
     {
         auto option = ftxui::CheckboxOption();
         option.transform = [](const ftxui::EntryState& s) {
@@ -58,17 +47,6 @@ private:
     }
 
 public:
-    Message(const char* msg, Color color = Color::Default) : message_(msg), color_(color)
-    {
-    }
-
-    ~Message() = default;
-
-    Component toComponent()
-    {
-        return toComponent(message_, color_);
-    }
-
     static Component
     toComponent(const std::string& content, Color color_ = Color::Default, bool is_sender = false)
     {
@@ -93,9 +71,9 @@ public:
                 };
                 Element element;
                 if (is_sender)
-                    element = myOpt().transform(entry_state);
+                    element = SendMessageOption().transform(entry_state);
                 else
-                    element = myOptv2().transform(entry_state);
+                    element = MessageOption().transform(entry_state);
 
                 return element | focus_management | reflect(box_) | color(clr);
             }
@@ -154,9 +132,6 @@ public:
 };
 
 class SendMessage {
-    Message sender_;
-    Message message_;
-
 public:
     static Component toComponent(
             const std::string& sender,

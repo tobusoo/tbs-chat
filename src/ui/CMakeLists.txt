@@ -1,20 +1,19 @@
-set(target_name tbs-chat)
+set(target_name ui)
 
-add_executable(${target_name})
+file(GLOB SRC
+     "*.cpp"
+)
 
-target_sources(
-    ${target_name}
-    PRIVATE
-    main.cpp
+add_library(${target_name}
+  ${SRC}
 )
 
 target_link_libraries(
-    ${target_name}
-    PRIVATE ftxui::screen
-    PRIVATE ftxui::dom
-    PRIVATE ftxui::component
-    core
+  ${target_name}
+  PUBLIC
+  ftxui::screen
+  ftxui::dom
+  ftxui::component
 )
 
-include_directories(${CMAKE_SOURCE_DIR}/src)
 include_directories(${CMAKE_SOURCE_DIR}/include)

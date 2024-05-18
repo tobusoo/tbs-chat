@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.22)
 
 project(
     tbs-chat
-    VERSION 0.5
+    VERSION 1.0
     LANGUAGES CXX   
 )
 
