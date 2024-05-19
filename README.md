@@ -24,7 +24,7 @@ To launch the client, use the following commands and options. `u ` is the userna
 ```
 
 ## Some examples
-### Chat with 4 (one "disconnected") user
+### Chat with 4 (one "disconnected") users
 ![image](https://github.com/tobusoo/tbs-chat/assets/106862439/39f157a8-bfbd-4b47-be34-0f65b57ad489)
 ![image](https://github.com/tobusoo/tbs-chat/assets/106862439/39b6a15b-c308-49d0-a594-8830181d88ec)
 ![image](https://github.com/tobusoo/tbs-chat/assets/106862439/7c20f152-5558-46c6-8d94-730022987b8b)
