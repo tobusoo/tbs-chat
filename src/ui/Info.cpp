@@ -8,7 +8,7 @@ Info::Info()
           return vbox({
                          paragraphAlignLeft("Welcome to TOBUSO-CHAT") | center,
                          hbox({paragraphAlignLeft(
-                                 "You can use the keys and keyboard to navigate through the interface.")}),
+                                 "You can use the mouse and keyboard to navigate through the interface.")}),
                          hbox({paragraphAlignLeft(
                                  "To view messages that no longer fit on the screen, press F10. So "
                                  "the chat window will not focus on the last message and you will "
