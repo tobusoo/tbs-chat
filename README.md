@@ -38,4 +38,5 @@ To launch the client, use the following commands and options. `u ` is the userna
 ![image](https://github.com/tobusoo/tbs-chat/assets/106862439/893671e3-0a40-4dea-a77a-fc222f0317f2)
 
 ### Info tab
-![image](https://github.com/tobusoo/tbs-chat/assets/106862439/594c7745-1d96-46c3-ac43-e2462db0d0f1)
+![image](https://github.com/tobusoo/tbs-chat/assets/106862439/0e638152-d8dd-4d4e-9648-abbe990825b9)
+
