@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <cinttypes>
 
 #include <Core.hpp>
 
